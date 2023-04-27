@@ -26,6 +26,7 @@ let adjList = [[1, 2, 3, 4, 5, 6],
                [0, 6],
                [1, 3, 4]]
 
+let stepUp = [0, 2, 4, 5, 7, 7, 9]
 let isPlaying = false;
 let justStartedPlaying = false;
 let isMajor = false;
@@ -84,13 +85,8 @@ function playChord(n, myKey) {
   envelope2.play(osc2, random() / 50, 0.1);
 }
 
-// function stopAllNotes() {
-//   notesToPlay.forEach(n => n.stop());
-// }
 
 function playChordPiano(n, myKey, isV7) {
-   // stopAllNotes();
-   let stepUp = [0, 2, 4, 5, 7, 7, 9]
    let startNote = 3 + myKey + stepUp[n];
    let endNote = startNote + 7;
    let middleNote = startNote + (getMode(n) ? 4 : 3);
@@ -286,23 +282,23 @@ function resetBubbles() {
 }
 
 function resetPiano() {
-  let h = 150;
-  let w = 30;
-  let startY = 120;
-  let startX = 100;
+  let h = 140;
+  let w = 20;
+  let startY = 180;
+  let startX = 80;
   strokeWeight(1);
   stroke(0);
   
   // white keys
   fill(255);
-  for (let i = 0; i < 11; i++) {
+  for (let i = 0; i < 18; i++) {
     rect(startX + w * i, startY, w, h);
   }
   
   // black keys
   fill(0);
-  for (let i = 0; i < 10; i++) {
-    if (i % 7 != 2 && i % 7 != 6) {
+  for (let i = 0; i < 17; i++) {
+    if ((i + 5) % 7 != 2 && (i + 5) % 7 != 6) {
       rect(startX + w * (0.7 + i), startY, w * 0.6, h * 0.6);
     }
   }
@@ -318,31 +314,132 @@ function activateBubbles(cur) {
   resetBubbleText();
 }
 
-function activatePiano(cur) {
+function isWhiteKey(pc) {
+  return (pc >= 4 || pc % 2 == 0) && (pc <= 5 || pc % 2 == 1);
+}
+
+function getPianoOffset(myNote) {
+  if (myNote < -1) return -2;
+  let result = myNote;
+  const thresholds = [0, 2, 5, 7, 9, 12, 14, 17];
+  for (const th of thresholds) {
+    if (myNote > th) result--;
+  }
+  return result;
+}
+
+function middleIsWhite(rootClass, isMajor) { // assumes root is also white
+  if (isMajor) return rootClass == 0 || rootClass == 5 || rootClass == 7;
+  else return rootClass == 2 || rootClass == 4 || rootClass == 9 || rootClass == 11;
+}
+
+function activatePiano(cur, myKey) {
   resetPiano();
   fill("green");
-  let startX = 100;
-  let startY = 120;
-  let h = 150;
-  let w = 30;
+  let h = 140;
+  let w = 20;
+  let startY = 180;
+  let startX = 80;
+  let actualNote = myKey + stepUp[cur];
+  let rootClass = ((actualNote + 12) % 12); // pitch class
+  let isWhiteKeyRoot = isWhiteKey(rootClass);
+  let isMajor = getMode(cur);
+  let rootX = 0, fifthX = 0, middleX = 0, seventhX = 0;
+  if (isWhiteKeyRoot) {
+    // strokeWeight(1);
+    // stroke(0);
+    rootX = (startX + 2 * w) + getPianoOffset(actualNote) * w;
+    rect(rootX, startY, w, h);
+    if (rootClass != 11) {
+      fifthX = rootX + 4 * w
+      rect(fifthX, startY, w, h);
+    }
+    else rect(rootX + 4.7 * w, startY, w * 0.6, h * 0.6);
+
+    if (middleIsWhite(rootClass, isMajor)) {
+      middleX = rootX + 2 * w;
+      rect(middleX, startY, w, h);
+    }
+    else rect(rootX + (1.7 + Number(isMajor)) * w, startY, w * 0.6, h * 0.6);
+
+    if (cur == 5) {
+      if (rootClass == 0 || rootClass == 5) rect(fifthX + 1.7 * w, startY, w * 0.6, h * 0.6);
+      else {
+        seventhX = rootX + 6 * w;
+        rect(seventhX, startY, w, h)
+      }
+    }
+
+    fill(0);
+    for (let i = 0; i < 17; i++) {
+      if ((i + 5) % 7 != 2 && (i + 5) % 7 != 6) {
+        let plannedX = startX + w * (0.7 + i);
+        if (abs(plannedX - rootX) < w || abs(plannedX - fifthX) < w 
+            || abs(plannedX - middleX) < w || abs(plannedX - seventhX) < w) {
+          rect(plannedX, startY, w * 0.6, h * 0.6);
+        }
+      }
+    }
+    
+  } else {
+    let slipLeft = (startX + 2 * w) + getPianoOffset(actualNote) * w;
+    rootX = slipLeft + 0.7 * w;
+    rect(rootX, startY, w * 0.6, h * 0.6);
+    
+    if (rootClass != 10) rect(rootX + 4 * w, startY, w * 0.6, h * 0.6);
+    else {
+      fifthX = rootX + 4.3 * w;
+      rect(fifthX, startY, w, h);
+    }
+
+    if (isWhiteKey((rootClass + 3 + Number(isMajor)) % 12)) {
+      middleX = rootX + (1.3 + Number(isMajor)) * w;
+      rect(middleX, startY, w, h);
+    } else {
+      rect(rootX + 2 * w, startY, w * 0.6, h * 0.6);
+    }
+
+    if (cur == 5) {
+      if (rootClass == 1 || rootClass == 6) {
+        seventhX = rootX + 5.3 * w;
+        rect(seventhX, startY, w, h);
+      }
+      else {
+        rect(rootX + 6 * w, startY, w * 0.6, h * 0.6);
+      }
+    }
+
+    fill(0);
+    for (let i = 0; i < 17; i++) {
+      if ((i + 5) % 7 != 2 && (i + 5) % 7 != 6) {
+        let plannedX = startX + w * (0.7 + i);
+        if (abs(plannedX - fifthX) < w || abs(plannedX - middleX) < w) {
+          rect(plannedX, startY, w * 0.6, h * 0.6);
+        }
+      }
+    }
+
+
+  }
+
   
   // adjustment for V7 and vi chords
-  if (cur >= 5) {
-    let _ = cur == 5 ? rect(startX + 10 * w, startY, w, h) : 0;
-    cur--;
-  }
+  // if (cur >= 5) {
+  //   let _ = cur == 5 ? rect(startX + 10 * w, startY, w, h) : 0;
+  //   cur--;
+  // }
   
-  for (let i = 0; i < 3; i++) {
-    rect(startX + w * (cur + (2 * i)), startY, w, h);
-  }
+  // for (let i = 0; i < 3; i++) {
+  //   rect(startX + w * (cur + (2 * i)), startY, w, h);
+  // }
   
-  // reset black keys
-  fill(0);
-  for (let i = 0; i < 10; i++) {
-    if (i % 7 != 2 && i % 7 != 6) {
-      rect(startX + w * (0.7 + i), startY, w * 0.6, h * 0.6);
-    }
-  }
+  // // reset black keys
+  // fill(0);
+  // for (let i = 0; i < 10; i++) {
+  //   if (i % 7 != 2 && i % 7 != 6) {
+  //     rect(startX + w * (0.7 + i), startY, w * 0.6, h * 0.6);
+  //   }
+  // }
 }
 
 function hexagon(transX, transY, s, fillColor) {
@@ -364,90 +461,76 @@ function hexagon(transX, transY, s, fillColor) {
 }
 
 function resetHexagonText() {
-  let startY = 120;
   let stepY = 53;
-  let col1 = ["F",  "Bb", "Eb", "Ab", "Db"]
-  let col2 = ["D", "G", "C", "F"];
-  let col3 = ["F#", "B", "E", "A", "D"];
+  let startYs = [173, 146.5, 120, 146.5, 120, 146.5, 173];
+  let colHeights = [4, 4, 5, 5, 5, 4, 4];
+  let col1 = ["E", "A", "D", "G"];
+  let col2 = ["G#/Ab", "C#/Db", "F#/Gb", "B"];
+  let col3 = ["C", "F", "A#/Bb", "D#/Eb", "G#/Ab"];
+  let col4 = ["A", "D", "G", "C", "F"];
+  let col5 = ["C#/Db", "F#/Gb", "B", "E", "A"];
+  let col6 = ["A#/Bb", "D#/Eb", "G#/Ab", "C#/Db"];
+  let col7 = ["G", "C", "F", "A#/Bb"];
+  let colTexts = [col1, col2, col3, col4, col5, col6, col7];
   fill(200);
   noStroke();
   textSize(20);
-  
-  for (var i = 0; i < 5; i++) {
-    text(col1[i], i == 0 ? 195 : 188, 127 + i * stepY);
-  }
-  for (var i = 0; i < 4; i++) {
-    text(col2[i], 240, 155 + i * stepY);
-  }
-  for (var i = 0; i < 5; i++) {
-    text(col3[i], 285, 127 + i * stepY);
+  let curText = "";
+
+  for (var curCol = 0; curCol < 7; curCol++) {
+    for (var curRow = 0; curRow < colHeights[curCol]; curRow++) {
+      curText = colTexts[curCol][curRow];
+      if (curText.length === 1) {
+        textSize(20);
+        text(curText, 102 + 46 * curCol, 8 + startYs[curCol] + curRow * stepY);
+      } else {
+        textSize(14);
+        text(curText.substring(0, 2), 90 + 46 * curCol, -1 + startYs[curCol] + curRow * stepY);
+        textSize(30);
+        text("̸", 117 + 46 * curCol, 11 + startYs[curCol] + curRow * stepY);
+        textSize(14);
+        text(curText.substring(3), 111 + 46 * curCol, 12 + startYs[curCol] + curRow * stepY);
+      }
+    }
   }
 }
 
 function resetHexagons() {
-  let startY = 120;
   let stepY = 53;
-  let col1 = ["F",  "Bb", "Eb", "Ab", "Db"]
-  let col2 = ["D", "G", "C", "F"];
-  let col3 = ["F#", "B", "E", "A", "D"];
-  
-  for (var i = 0; i < 5; i++) {
-    hexagon(200, 120 + i * stepY, 0.2, "green");
-  }
-  for (var i = 0; i < 4; i++) {
-    hexagon(246, 146.5 + i * stepY, 0.2, "green");
-  }
-  for (var i = 0; i < 5; i++) {
-    hexagon(292, 120 + i * stepY, 0.2, "green");
+  let stepX = 46;
+  let startX = 110;
+  let startYs = [173, 146.5, 120, 146.5, 120, 146.5, 173];
+  let colHeights = [4, 4, 5, 5, 5, 4, 4];
+
+  for (var curCol = 0; curCol < 7; curCol++) {
+    for (var curRow = 0; curRow < colHeights[curCol]; curRow++) {
+      hexagon(startX + stepX * curCol, startYs[curCol] + curRow * stepY, 0.2, "green");
+    }
   }
   resetHexagonText();
 }
 
-function activateHexagons(cur) {
+function activateHexagons(cur, myKey) {
+  let xCoords = [248, 340, 248, 202, 294, 248, 156, 248, 202, 294, 202, 294];
+  let yCoords = [305.5, 305.5, 199.5, 279, 279, 305.5 + 53, 252.5, 252.5, 332, 332, 226, 226];
   resetHexagons();
-  let x = 0;
-  let y = 0;
+  let actualNote = (myKey + stepUp[cur] + 12) % 12;
+  let x = xCoords[actualNote];
+  let y = yCoords[actualNote];
   let isMajor = getMode(cur);
   let color = "#008ffc";
-  x = isMajor ? 246 : 292;
-  switch (cur) {
-    case 1:
-      y = 332;
-      break;
-    case 6:
-      y = 279;
-      break;
-    case 2:
-      y = 226;
-      break;
-    case 0:
-      y = 252.5;
-      break;
-    case 3:
-      y = 305.5;
-      break;
-    default:
-      y = 199.5;
-  }
-  if (isMajor) {
-    hexagon(x, y, 0.2, color);
-    hexagon(x + 46, y - 27, 0.2, color);
-    hexagon(x, y - 53, 0.2, color);
-    if (cur == 5) {
-      hexagon(200, 120, 0.2, color);
-    }
-  } else {
-    hexagon(x, y, 0.2, color);
-    hexagon(x - 46, y - 27, 0.2, color);
-    hexagon(x, y - 53, 0.2, color);
-  }
+  hexagon(x, y, 0.2, color);
+  hexagon(x, y - 53, 0.2, color);
+  if (isMajor) hexagon(x + 46, y - 27, 0.2, color);
+  else hexagon (x - 46, y - 27, 0.2, color);
+  if (cur == 5) hexagon(x - 46, y - 80, 0.2, color);
   resetHexagonText();
 }
 
 function resetVisualizer() {
   fill(240);
   noStroke();
-  rect(50, 93, 385, 270);
+  rect(50, 93, 400, 320);
   if (visualizerMode == 0) {
     resetBubbles();
   } else if (visualizerMode == 1) {
@@ -457,42 +540,18 @@ function resetVisualizer() {
   }
 }
 
-function activateVisualizer(cur) {
+function activateVisualizer(cur, myKey) {
   if (visualizerMode == 0) {
     activateBubbles(cur);
   } else if (visualizerMode == 1) {
-    activateHexagons(cur);
+    activateHexagons(cur, myKey);
   } else {
-    activatePiano(cur);
+    activatePiano(cur, myKey);
   }
 }
 
 function playChordIndex(i, myKey) {
-  switch(i){
-      case(0): 
-        playChordPiano(0, myKey, false);
-        break;
-      case(1):
-        playChordPiano(1, myKey, false);
-        break;
-      case(2):
-        playChordPiano(2, myKey, false);
-        break;
-      case(3):
-        playChordPiano(3, myKey, false);
-        break;
-      case(4):
-        playChordPiano(4, myKey, false);
-        break;
-      case(5):
-        playChordPiano(4, myKey, true);
-        break;
-      case(6):
-        playChordPiano(6, myKey, false);
-        break;
-      default:
-        return "error";
-  }
+  playChordPiano(i === 5 ? 4 : i, myKey, i === 5);
 }
 
 
@@ -502,7 +561,7 @@ function playList(lst, myKey) {
   // backing for chord progression list
   rect(470, 150, 280, 60);
   // backing for visualizer path
-  rect(102, 362, 550, 195)
+  rect(102, 462, 550, 195)
   fill("#0874fc");
   textSize(18);
   if (lst.length == 0) {
@@ -533,7 +592,7 @@ function playList(lst, myKey) {
        strokeWeight(1);
        stroke(51);
        fill(240);
-       activateVisualizer(cur);
+       activateVisualizer(cur, myKey);
        isMajor = getMode(cur);
        curChordName = cur;
        curChordOrder = min(curChordOrder + 1, 11);
@@ -549,7 +608,6 @@ function generate() {
 function setup() {
   cnv = createCanvas(700, 700);
   background(240);
-  // song = loadSound('assets/piano_notes/' + filePaths[0]);
   for (var i = 0; i < notesToPlay.length; i++) {
     notesToPlay[i] = loadSound('assets/piano_notes/' + filePaths[i]);
   }
@@ -581,7 +639,7 @@ function setup() {
   pianoButton.mousePressed(pianoPressed);
   pianoButton.position(455, 70);
   styleButtons();
-  bubblePressed();
+  pianoPressed();
   osc = new p5.SinOsc();
   osc1 = new p5.SinOsc();
   osc2 = new p5.SinOsc();
@@ -604,9 +662,10 @@ function setup() {
   envelope3.setRange(1, 0);
   noStroke();
   fill(0);
-  text("Chord", 30, 475);
+  textSize(12);
+  text("Chord", 30, 575);
   for (let i = 0; i < 7; i++) {
-    text(indexToName(i), 80, 535 - 25 * i);
+    text(indexToName(i), 80, 635 - 25 * i);
   }
 
 }
@@ -643,17 +702,17 @@ function draw() {
   noStroke();
   strokeWeight(1);
   stroke(51);
-  line(100, 550, 100, 370);
+  line(100, 650, 100, 470);
   if (isPlaying) {
     if (justStartedPlaying) { // starting to play
       curColor = isMajor ? "#07de2b" : "#0727de"
-      curY = 530 - 25 * curChordName;
+      curY = 630 - 25 * curChordName;
       curX = 120;
       justStartedPlaying = false;
     } else {
       curColor = isMajor ? hexAverageWithHash(curColor, "#07de2b") : hexAverageWithHash(curColor, "#0727de");
       goalX = 120 + 50 * max(curChordOrder, 0);
-      goalY = 530 - 25 * curChordName;
+      goalY = 630 - 25 * curChordName;
       curX = curX + ((goalX - curX) / 8);
       curY = curY + ((goalY - curY) / 8);
     }
@@ -661,18 +720,14 @@ function draw() {
   fill(curColor);
   noStroke();
   if (isPlaying) {
-    // if (abs(curX - 120) < 5) {
-    //   curY = 530  - 25 * curChordName;
-    //   fill(isMajor ? "#07de2b" : "#0727de");
-    // }
     ellipse(curX, curY, curWidth, curHeight);
   }
   fill(240);
   noStroke();
-  rect(120, 545, 600, 10);
+  rect(120, 645, 600, 10);
   stroke(0);
-  line(100, 550, 100 + 50 * progLen, 550);
+  line(100, 650, 100 + 50 * progLen, 650);
   fill(0);
   noStroke();
-  text("Time", 200, 570);
+  text("Time", 200, 670);
 }
