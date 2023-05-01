@@ -1,0 +1,18 @@
+.instructions-container {
+    background-color: #fcebb8;
+    color: #5e4602;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    position: absolute;
+    top: 8px;
+    left: 708px;
+    z-index: 0;
+    padding-left: 10px;
+    padding-right: 20px;
+    border-left: 2px solid #5e4602;
+}
+
+a {
+    background-color: #fcebb8;
+    color: #5e4602;
+}

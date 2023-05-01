@@ -1,11 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Comprehensive Visualizer</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.sound.js"></script>
-<script src="comprehensive.js" type="text/javascript"></script>
+    <meta charset="UTF-8">
+    <title>Comprehensive Visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.sound.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
+<body>
+    <script src="comprehensive.js" type="text/javascript"></script>
+    <div class = "instructions-container">
+        <h1>Chord Progression Visualizer</h1>
+        <h4>by John Quinlan</h4>
+        <h2>Sliders:</h2>
+        <ol>
+            <li>Progression length slider (upper left): use the slider to set the 
+                length of your chord progression between 3 and 10, inclusive.</li>
+            <li>Starting chord: Use the slider to toggle between any of the seven offered chords.</li>
+            <li>Ending chord: Similarly to the starting chord slider-- the most nice-sounding 
+                progressions often end with either I or vi, but feel free to try whatever you like! </li> 
+            <li>Key: Use the key slider to transpose into any of the 12 major keys.</li>
+        </ol>
+        <h2>Visualization Options:</h2>
+        <ol>
+            <li>Bubble visualizer: Simply one circle corresponding to each chord, 
+                where each circle lights up when its chord is being played.</li>
+            <li>Hexagon visualizer: Like the arrangement of keys on an accordion, this 
+                option is intuitive in that triads appear as clusters. </li>
+            <li>Piano visualizer: Visualizes the notes being played as they would 
+                appear on a piano. </li>
+        </ol>
+        <h2>Chord vs. Time tracer</h2>
+        <ol>
+            <li>This visualiztion plots the chords being played as a function of time. 
+                Try generating different progressions to find connections between what you 
+                hear and what you see. </li>
+        </ol>
+        <br>
+        <br>
+        <span>Created for my </span> <a href = "https://www.cmu.edu/interdisciplinary/academics/capstone.html">BXA Capstone</a>  
+        <span> project, to combine my concentrations in computer science and music performance</span>
+    </div>
+</body>
 </html>

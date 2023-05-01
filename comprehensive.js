@@ -421,25 +421,6 @@ function activatePiano(cur, myKey) {
 
 
   }
-
-  
-  // adjustment for V7 and vi chords
-  // if (cur >= 5) {
-  //   let _ = cur == 5 ? rect(startX + 10 * w, startY, w, h) : 0;
-  //   cur--;
-  // }
-  
-  // for (let i = 0; i < 3; i++) {
-  //   rect(startX + w * (cur + (2 * i)), startY, w, h);
-  // }
-  
-  // // reset black keys
-  // fill(0);
-  // for (let i = 0; i < 10; i++) {
-  //   if (i % 7 != 2 && i % 7 != 6) {
-  //     rect(startX + w * (0.7 + i), startY, w * 0.6, h * 0.6);
-  //   }
-  // }
 }
 
 function hexagon(transX, transY, s, fillColor) {
@@ -639,7 +620,7 @@ function setup() {
   pianoButton.mousePressed(pianoPressed);
   pianoButton.position(455, 70);
   styleButtons();
-  pianoPressed();
+  bubblePressed();
   osc = new p5.SinOsc();
   osc1 = new p5.SinOsc();
   osc2 = new p5.SinOsc();
