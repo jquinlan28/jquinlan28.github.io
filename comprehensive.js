@@ -346,8 +346,6 @@ function activatePiano(cur, myKey) {
   let isMajor = getMode(cur);
   let rootX = 0, fifthX = 0, middleX = 0, seventhX = 0;
   if (isWhiteKeyRoot) {
-    // strokeWeight(1);
-    // stroke(0);
     rootX = (startX + 2 * w) + getPianoOffset(actualNote) * w;
     rect(rootX, startY, w, h);
     if (rootClass != 11) {
@@ -467,8 +465,11 @@ function resetHexagonText() {
       } else {
         textSize(14);
         text(curText.substring(0, 2), 90 + 46 * curCol, -1 + startYs[curCol] + curRow * stepY);
-        textSize(30);
-        text("̸", 117 + 46 * curCol, 11 + startYs[curCol] + curRow * stepY);
+        stroke(200);
+        strokeWeight(1.5);
+        line(112.5 + 46 * curCol, -8 + startYs[curCol] + curRow * stepY, 103.5 + 46 * curCol, 
+             12 + startYs[curCol] + curRow * stepY);
+        noStroke();
         textSize(14);
         text(curText.substring(3), 111 + 46 * curCol, 12 + startYs[curCol] + curRow * stepY);
       }
